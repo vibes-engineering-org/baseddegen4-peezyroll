@@ -170,7 +170,8 @@ export default function CrapsGame() {
 
       setGameHistory(newHistory);
 
-      if (gameResult !== null || won !== undefined) {
+      // Only update stats when the game actually ends (win or lose)
+      if (gameResult === "win" || gameResult === "lose") {
         updateStats(won, bet);
       }
 

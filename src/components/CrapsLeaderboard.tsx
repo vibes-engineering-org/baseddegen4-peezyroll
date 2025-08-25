@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { PlayerStats } from "./CrapsGame";
 
-type SortBy = "winRate" | "totalWon" | "gamesPlayed" | "netEth";
+type SortBy = "winRate" | "totalWon" | "gamesPlayed" | "netEth" | "avgBet" | "totalLost";
 
 export default function CrapsLeaderboard() {
   const [leaderboard, setLeaderboard] = useState<PlayerStats[]>([]);
@@ -44,8 +44,14 @@ export default function CrapsLeaderboard() {
           return winRateB - winRateA;
         case "totalWon":
           return b.stats.totalEthWon - a.stats.totalEthWon;
+        case "totalLost":
+          return b.stats.totalEthLost - a.stats.totalEthLost;
         case "gamesPlayed":
           return b.stats.gamesPlayed - a.stats.gamesPlayed;
+        case "avgBet":
+          const avgBetA = a.stats.gamesPlayed > 0 ? (a.stats.totalEthWon + a.stats.totalEthLost) / a.stats.gamesPlayed : 0;
+          const avgBetB = b.stats.gamesPlayed > 0 ? (b.stats.totalEthWon + b.stats.totalEthLost) / b.stats.gamesPlayed : 0;
+          return avgBetB - avgBetA;
         case "netEth":
           const netA = a.stats.totalEthWon - a.stats.totalEthLost;
           const netB = b.stats.totalEthWon - b.stats.totalEthLost;
@@ -99,11 +105,25 @@ export default function CrapsLeaderboard() {
             Total Won
           </Button>
           <Button
+            variant={sortBy === "totalLost" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setSortBy("totalLost")}
+          >
+            Total Lost
+          </Button>
+          <Button
             variant={sortBy === "gamesPlayed" ? "default" : "outline"}
             size="sm"
             onClick={() => setSortBy("gamesPlayed")}
           >
             Games Played
+          </Button>
+          <Button
+            variant={sortBy === "avgBet" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setSortBy("avgBet")}
+          >
+            Avg Bet
           </Button>
         </div>
       </CardHeader>
@@ -133,7 +153,7 @@ export default function CrapsLeaderboard() {
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-4 text-right text-sm">
+                  <div className="grid grid-cols-3 gap-3 text-right text-sm">
                     <div>
                       <p className="text-muted-foreground">Win Rate</p>
                       <p className="font-semibold">{formatWinRate(player)}</p>
@@ -152,6 +172,19 @@ export default function CrapsLeaderboard() {
                       <p className="text-muted-foreground">Total Won</p>
                       <p className="font-semibold text-green-600">
                         {player.stats.totalEthWon.toFixed(4)} ETH
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Total Lost</p>
+                      <p className="font-semibold text-red-600">
+                        {player.stats.totalEthLost.toFixed(4)} ETH
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Avg Bet</p>
+                      <p className="font-semibold">
+                        {player.stats.gamesPlayed > 0 ? 
+                          ((player.stats.totalEthWon + player.stats.totalEthLost) / player.stats.gamesPlayed).toFixed(4) : '0.0000'} ETH
                       </p>
                     </div>
                   </div>
